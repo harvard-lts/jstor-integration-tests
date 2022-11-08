@@ -6,6 +6,9 @@ import requests
 from flask_restx import Resource, Api
 from flask import render_template
 import os, os.path, json
+import certifi
+import ssl
+from pymongo import MongoClient
 
 
 def define_resources(app):
@@ -20,29 +23,32 @@ def define_resources(app):
     mongo_url = os.environ.get('MONGO_URL')
     mongo_dbname = os.environ.get('MONGO_DBNAME')
     mongo_collection = os.environ.get('MONGO_COLLECTION')
+    mongo_ssl_cert = os.environ.get('MONGO_SSL_CERT')
 
-    # Heartbeat/health check route
+    # Version / Heartbeat route
     @dashboard.route('/version', endpoint="version", methods=['GET'])
     class Version(Resource):
         def get(self):
             version = os.environ.get('APP_VERSION', "NOT FOUND")
             return {"version": version}
 
-    @app.route('/healthcheck')
-    def healthchecks():
-        num_failed_tests = 0
-        tests_failed = []
-        result = {"num_failed": num_failed_tests, "tests_failed": tests_failed}
-
-        #mongo healthcheck
-
-        return json.dumps(result)
 
     @app.route('/integration')
     def integration_test():
         num_failed_tests = 0
         tests_failed = []
         result = {"num_failed": num_failed_tests, "tests_failed": tests_failed, "info": {}}
+
+        # check mongo connectivity
+        # client = MongoClient(mongo_url, maxPoolSize=1)
+        # server_info = client.server_info()
+        # result["server_info"] = server_info
+        # if server_info == None:
+        #     result["num_failed"] += 1
+        #     result["tests_failed"].append("Mongo")
+        #     result["Failed Harvester"] = {"status_code": 500, 
+        #         "text": "Failed mongo connection"}
+        # client.close()
 
 
         app.logger.debug("starting integration test")
