@@ -26,7 +26,7 @@ def define_resources(app):
     class Version(Resource):
         def get(self):
             version = os.environ.get('APP_VERSION', "NOT FOUND")
-            return {"version": version})
+            return {"version": version}
 
     @app.route('/healthcheck')
     def healthchecks():
@@ -38,7 +38,7 @@ def define_resources(app):
 
         return json.dumps(result)
 
-    @app.route('/integratiom')
+    @app.route('/integration')
     def integration_test():
         num_failed_tests = 0
         tests_failed = []
@@ -47,46 +47,45 @@ def define_resources(app):
 
         app.logger.debug("starting integration test")
         # harvester
+        harvester_msg = {"job_ticket_id":"123","hello":"harvester"}
         harvester_response = requests.post(
             harvester_endpoint + '/do_task',
             json=harvester_msg,
             verify=False)
         harvester_json = harvester_response.json()
-        if harvester_json["status"] != "OK":
+        if harvester_response.status_code != 200:
             result["num_failed"] += 1
             result["tests_failed"].append("Harvester")
             result["Failed Harvester"] = {"status_code": harvester_response.status_code,
                                                "text": harvester_json["message"]}
-            return json.dumps(result)
 
         
         # transformer
+        transformer_msg = {"job_ticket_id":"123","hello":"transformer"}
         transformer_response = requests.post(
             transformer_endpoint + '/do_task',
             json=transformer_msg,
             verify=False)
         transformer_json = transformer_response.json()
-        if transformer_json["status"] != "OK":
+        if transformer_response.status_code != 200:
             result["num_failed"] += 1
             result["tests_failed"].append("Transformer")
             result["Failed Transformer"] = {"status_code": transformer_response.status_code,
                                                "text": transformer_json["message"]}
-            return json.dumps(result)
 
         
         # publisher
+        publisher_msg = {"job_ticket_id":"123","hello":"publisher"}
         publisher_response = requests.post(
             publisher_endpoint + '/do_task',
             json=publisher_msg,
             verify=False)
         publisher_json = publisher_response.json()
-        if publisher_json["status"] != "OK":
+        if publisher_response.status_code != 200:
             result["num_failed"] += 1
             result["tests_failed"].append("Publisher")
             result["Failed Publisher"] = {"status_code": publisher_response.status_code,
                                                "text": publisher_json["message"]}
-            return json.dumps(result)
-
 
         return json.dumps(result)
 
