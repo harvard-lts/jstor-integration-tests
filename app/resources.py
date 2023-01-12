@@ -1,3 +1,4 @@
+
 import re
 import glob
 import shutil
@@ -9,6 +10,16 @@ import os, os.path, json
 import certifi
 import ssl
 from pymongo import MongoClient
+#from celery import Celery
+from tasks.tasks import do_task
+
+#celery_client = Celery('tasks')
+#celery_client.config_from_object('celeryconfig')
+
+incoming_queue = os.environ.get('FIRST_QUEUE_NAME')
+transform_jstorforum_queue = os.environ.get('SECOND_QUEUE_NAME')
+publish_jstorforum_queue = os.environ.get('THIRD_QUEUE_NAME')
+completed_jstorforum_queue = os.environ.get('LAST_QUEUE_NAME')
 
 
 def define_resources(app):
@@ -40,15 +51,15 @@ def define_resources(app):
         result = {"num_failed": num_failed_tests, "tests_failed": tests_failed, "info": {}}
 
         # check mongo connectivity
-        # client = MongoClient(mongo_url, maxPoolSize=1)
-        # server_info = client.server_info()
-        # result["server_info"] = server_info
-        # if server_info == None:
-        #     result["num_failed"] += 1
-        #     result["tests_failed"].append("Mongo")
-        #     result["Failed Harvester"] = {"status_code": 500, 
-        #         "text": "Failed mongo connection"}
-        # client.close()
+        mongo_client = MongoClient(mongo_url, maxPoolSize=1)
+        server_info = mongo_client.server_info()
+        #result["server_info"] = server_info
+        if server_info == None:
+            result["num_failed"] += 1
+            result["tests_failed"].append("Mongo")
+            result["Failed Harvester"] = {"status_code": 500, 
+                "text": "Failed mongo connection"}
+        mongo_client.close()
 
 
         app.logger.debug("starting integration test")
@@ -94,4 +105,21 @@ def define_resources(app):
                                                "text": publisher_json["message"]}
 
         return json.dumps(result)
+
+    @app.route('/testqueue')
+    def queue_test():
+        num_failed_tests = 0
+        tests_failed = []
+        result = {"num_failed": num_failed_tests, "tests_failed": tests_failed, "info": {}}
+
+        # Send a simple task (create and send in 1 step)
+        #res = client.send_task('tasks.tasks.do_task', args=[{"job_ticket_id":"123","hello":"world"}], kwargs={}, queue=incoming_queue)
+        #read from 'final_queue' to see that it went through the pipeline
+        test_message = {"job_ticket_id":"123","hello":"wor{ld"}
+        do_task(test_message)
+        return "message sent"
+
+
+
+    
 

@@ -15,8 +15,7 @@ services:
     env_file:
       - '.env'
     environment:
-      QUEUE_NAME: second_queue
-      NEXT_QUEUE_NAME: third_queue
+      QUEUE_NAME: completed_jstorforum
     ports:
       # Integration tests
       - '24005:8081'
