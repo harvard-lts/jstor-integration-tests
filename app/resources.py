@@ -36,6 +36,7 @@ def define_resources(app):
     mongo_dbname = os.environ.get('MONGO_DBNAME')
     mongo_collection = os.environ.get('MONGO_COLLECTION')
     mongo_ssl_cert = os.environ.get('MONGO_SSL_CERT')
+    sleep_secs = int(os.environ.get('SLEEP_SECS', 2))
 
     # Version / Heartbeat route
     @dashboard.route('/version', endpoint="version", methods=['GET'])
@@ -58,7 +59,6 @@ def define_resources(app):
         test_message = {"job_ticket_id":job_ticket_id, "hello":"world"}
         task_result = do_task(test_message)
         task_id = task_result.id
-        end_result = get_end_message({"job_ticket_id":job_ticket_id})
 
         #read from mongodb
         try:
@@ -67,18 +67,18 @@ def define_resources(app):
             mongo_client = MongoClient(mongo_url, maxPoolSize=1)
 
             mongo_db = mongo_client[mongo_dbname]
-            integration_collection = mongo_db["integration_test"]
+            integration_collection = mongo_db['integration_test']
 
             harvester_filter = {"id": "harvester-" + job_ticket_id, "name": "Harvester"}
             transformer_filter = {"id": "transformer-" + job_ticket_id, "name": "Transformer"}
             publisher_filter = {"id": "publisher-" + job_ticket_id, "name": "Publisher"}
 
             filters = [harvester_filter, transformer_filter, publisher_filter]
+            time.sleep(sleep_secs) #wait for queue 
             for component_filter in filters:
-                itest_record = integration_collection.find({'id': component_filter['id']})
-                #current_app.logger.error("searching for mongo id: " + component_filter["id"])
-                #itest_record = integration_collection.count_documents({'id': component_filter["id"]})
-                if len(list(itest_record)) == 0:
+                query  = { "id": component_filter["id"] }
+                itest_record = integration_collection.find_one(query)
+                if (itest_record == None):
                     result["num_failed"] += 1
                     result["tests_failed"].append(component_filter["name"])
 
@@ -87,8 +87,8 @@ def define_resources(app):
             result["num_failed"] += 1
             result["tests_failed"].append("Mongo")
             result["Failed Mongo"] = {"status_code": 500, "text": "Failed mongo connection"}
+            mongo_client.close()
 
-        mongo_client.close()
         return json.dumps(result)
 
 

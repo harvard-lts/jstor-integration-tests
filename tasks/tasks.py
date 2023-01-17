@@ -5,10 +5,10 @@ from requests.packages.urllib3.util.retry import Retry
 import celery as celeryapp
 import os
 
-incoming_queue = os.environ.get('FIRST_QUEUE_NAME', 'first_queue_cg')
-transform_jstorforum_queue = os.environ.get('SECOND_QUEUE_NAME', 'transform_jstorforum_cg')
-publish_jstorforum_queue = os.environ.get('THIRD_QUEUE_NAME', 'publish_jstorforum_cg')
-completed_jstorforum_queue = os.environ.get('LAST_QUEUE_NAME', 'completed_jstorforum_cg')
+incoming_queue = os.environ.get('FIRST_QUEUE_NAME', 'first_queue_itest')
+transform_jstorforum_queue = os.environ.get('SECOND_QUEUE_NAME', 'transform_jstorforum_itest')
+publish_jstorforum_queue = os.environ.get('THIRD_QUEUE_NAME', 'publish_jstorforum_itest')
+completed_jstorforum_queue = os.environ.get('LAST_QUEUE_NAME', 'completed_jstorforum_itest')
 harvester_endpoint = os.environ.get('HARVESTER_ENDPOINT')
 retry_strategy = Retry(
     total=3,
