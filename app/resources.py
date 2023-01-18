@@ -1,14 +1,26 @@
+
 import re
 import glob
 import shutil
 import time
 import requests
 from flask_restx import Resource, Api
-from flask import render_template
+from flask import render_template, current_app
 import os, os.path, json
 import certifi
 import ssl
 from pymongo import MongoClient
+#from celery import Celery
+from tasks.tasks import do_task, get_end_message
+import random
+
+#celery_client = Celery('tasks')
+#celery_client.config_from_object('celeryconfig')
+
+incoming_queue = os.environ.get('FIRST_QUEUE_NAME', 'first_queue')
+transform_jstorforum_queue = os.environ.get('SECOND_QUEUE_NAME', 'transform_jstorforum')
+publish_jstorforum_queue = os.environ.get('THIRD_QUEUE_NAME', 'publish_jstorforum')
+completed_jstorforum_queue = os.environ.get('LAST_QUEUE_NAME', 'completed_jstorforum')
 
 
 def define_resources(app):
@@ -22,8 +34,9 @@ def define_resources(app):
     transformer_endpoint = os.environ.get('TRANSFORMER_ENDPOINT')
     mongo_url = os.environ.get('MONGO_URL')
     mongo_dbname = os.environ.get('MONGO_DBNAME')
-    mongo_collection = os.environ.get('MONGO_COLLECTION')
+    mongo_collection_name = os.environ.get('MONGO_COLLECTION')
     mongo_ssl_cert = os.environ.get('MONGO_SSL_CERT')
+    sleep_secs = int(os.environ.get('SLEEP_SECS', 2))
 
     # Version / Heartbeat route
     @dashboard.route('/version', endpoint="version", methods=['GET'])
@@ -39,59 +52,43 @@ def define_resources(app):
         tests_failed = []
         result = {"num_failed": num_failed_tests, "tests_failed": tests_failed, "info": {}}
 
-        # check mongo connectivity
-        # client = MongoClient(mongo_url, maxPoolSize=1)
-        # server_info = client.server_info()
-        # result["server_info"] = server_info
-        # if server_info == None:
-        #     result["num_failed"] += 1
-        #     result["tests_failed"].append("Mongo")
-        #     result["Failed Harvester"] = {"status_code": 500, 
-        #         "text": "Failed mongo connection"}
-        # client.close()
+        # Send a simple task (create and send in 1 step)
+        #res = client.send_task('tasks.tasks.do_task', args=[{"job_ticket_id":"123","hello":"world"}], kwargs={}, queue=incoming_queue)
+        #read from 'final_queue' to see that it went through the pipeline
+        job_ticket_id = str(random.randint(1, 4294967296))
+        test_message = {"job_ticket_id":job_ticket_id, "integration_test": True}
+        task_result = do_task(test_message)
+        task_id = task_result.id
 
+        #read from mongodb
+        try:
+            mongo_client = MongoClient(mongo_url, maxPoolSize=1)
+            mongo_db = mongo_client[mongo_dbname]
+            mongo_collection = mongo_db[mongo_collection_name]
 
-        app.logger.debug("starting integration test")
-        # harvester
-        harvester_msg = {"job_ticket_id":"123","hello":"harvester"}
-        harvester_response = requests.post(
-            harvester_endpoint + '/do_task',
-            json=harvester_msg,
-            verify=False)
-        harvester_json = harvester_response.json()
-        if harvester_response.status_code != 200:
+            harvester_filter = {"id": "harvester-" + job_ticket_id, "name": "Harvester"}
+            transformer_filter = {"id": "transformer-" + job_ticket_id, "name": "Transformer"}
+            publisher_filter = {"id": "publisher-" + job_ticket_id, "name": "Publisher"}
+
+            filters = [harvester_filter, transformer_filter, publisher_filter]
+            time.sleep(sleep_secs) #wait for queue 
+            for component_filter in filters:
+                query  = { "id": component_filter["id"] }
+                itest_record = mongo_collection.find_one(query)
+                if (itest_record == None):
+                    result["num_failed"] += 1
+                    result["tests_failed"].append(component_filter["name"])
+
+            mongo_client.close()
+        except Exception as err:
             result["num_failed"] += 1
-            result["tests_failed"].append("Harvester")
-            result["Failed Harvester"] = {"status_code": harvester_response.status_code,
-                                               "text": harvester_json["message"]}
-
-        
-        # transformer
-        transformer_msg = {"job_ticket_id":"123","hello":"transformer"}
-        transformer_response = requests.post(
-            transformer_endpoint + '/do_task',
-            json=transformer_msg,
-            verify=False)
-        transformer_json = transformer_response.json()
-        if transformer_response.status_code != 200:
-            result["num_failed"] += 1
-            result["tests_failed"].append("Transformer")
-            result["Failed Transformer"] = {"status_code": transformer_response.status_code,
-                                               "text": transformer_json["message"]}
-
-        
-        # publisher
-        publisher_msg = {"job_ticket_id":"123","hello":"publisher"}
-        publisher_response = requests.post(
-            publisher_endpoint + '/do_task',
-            json=publisher_msg,
-            verify=False)
-        publisher_json = publisher_response.json()
-        if publisher_response.status_code != 200:
-            result["num_failed"] += 1
-            result["tests_failed"].append("Publisher")
-            result["Failed Publisher"] = {"status_code": publisher_response.status_code,
-                                               "text": publisher_json["message"]}
+            result["tests_failed"].append("Mongo")
+            result["Failed Mongo"] = {"status_code": 500, "text": "Failed mongo connection"}
+            mongo_client.close()
 
         return json.dumps(result)
+
+
+
+    
 
