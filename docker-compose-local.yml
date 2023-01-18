@@ -15,7 +15,7 @@ services:
     env_file:
       - '.env'
     environment:
-      QUEUE_NAME: completed_jstorforum_itest
+      QUEUE_NAME: first_queue_itest
     ports:
       # Integration tests
       - '24005:8081'
