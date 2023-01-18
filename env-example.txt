@@ -3,8 +3,8 @@ APP_LOG_LEVEL=INFO
 
 # MongoDB info
 MONGO_URL=mongodb://USERNAME:PASSWORD@mongo-dev-1.lts.harvard.edu:27072,mongo-dev-2.lts.harvard.edu:27072,mongo-dev-arbiter.lts.harvard.edu:27072/?replicaSet=devrs&authSource=jstorforum-dev
-MONGO_DBNAME=jstorforumro
-MONGO_COLLECTION=jstorforum-dev
+MONGO_DBNAME=jstorforum-dev
+MONGO_COLLECTION=integration_test
 
 HARVESTER_ENDPOINT=http://locahost:24006/jstor_harvester
 TRANSFORMER_ENDPOINT=http://locahost:24007/jstor_transformer
