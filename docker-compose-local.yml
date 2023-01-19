@@ -18,7 +18,7 @@ services:
       QUEUE_NAME: first_queue_itest
     ports:
       # Integration tests
-      - '24005:8081'
+      - '25003:8081'
     networks:
       - jstorforum-net
 
