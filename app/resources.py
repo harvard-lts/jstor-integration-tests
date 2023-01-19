@@ -1,4 +1,3 @@
-
 import re
 import glob
 import shutil
@@ -14,8 +13,6 @@ from pymongo import MongoClient
 from tasks.tasks import do_task, get_end_message
 import random
 
-#celery_client = Celery('tasks')
-#celery_client.config_from_object('celeryconfig')
 
 incoming_queue = os.environ.get('FIRST_QUEUE_NAME', 'first_queue')
 transform_jstorforum_queue = os.environ.get('SECOND_QUEUE_NAME', 'transform_jstorforum')
@@ -29,9 +26,6 @@ def define_resources(app):
     dashboard = api.namespace('/', description="This project contains the integration tests for the JSTOR project")
 
     # Env vars
-    harvester_endpoint = os.environ.get('HARVESTER_ENDPOINT')
-    publisher_endpoint = os.environ.get('PUBLISHER_ENDPOINT')
-    transformer_endpoint = os.environ.get('TRANSFORMER_ENDPOINT')
     mongo_url = os.environ.get('MONGO_URL')
     mongo_dbname = os.environ.get('MONGO_DBNAME')
     mongo_collection_name = os.environ.get('MONGO_COLLECTION')

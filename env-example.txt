@@ -6,10 +6,6 @@ MONGO_URL=mongodb://USERNAME:PASSWORD@mongo-dev-1.lts.harvard.edu:27072,mongo-de
 MONGO_DBNAME=jstorforum-dev
 MONGO_COLLECTION=integration_test
 
-HARVESTER_ENDPOINT=http://locahost:24006/jstor_harvester
-TRANSFORMER_ENDPOINT=http://locahost:24007/jstor_transformer
-PUBLISHER_ENDPOINT=http://locahost:24008/jstor_publisher
-
 FIRST_QUEUE_NAME=first_queue_itest
 SECOND_QUEUE_NAME=transform_jstorforum_itest
 THIRD_QUEUE_NAME=publish_jstorforum_itest
