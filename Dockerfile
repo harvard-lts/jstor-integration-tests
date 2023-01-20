@@ -25,7 +25,7 @@ COPY --chown=jstorforumadm ./ .
 # Update permissions for the jstorforumadm user and group
 COPY change_id.sh /root/change_id.sh
 RUN chmod 755 /root/change_id.sh && \
-  /root/change_id.sh -u 193 -g 199
+  /root/change_id.sh -u 55030 -g 1636
 
 # Supervisor to run and manage multiple apps in the same container
 ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
