@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y libpq-dev gcc python-dev supervisor ngi
   pip install --upgrade --force-reinstall -r /tmp/requirements.txt -i https://pypi.org/simple/ --extra-index-url https://test.pypi.org/simple/
 
 
-RUN groupadd -r -g 55020 jstorforumadm && \
+RUN groupadd -r -g 55020 appcommon && \
   useradd -u 55020 -g 55020 --create-home jstorforumadm
 
 # RUN useradd --create-home jstorforumadm
@@ -26,10 +26,10 @@ WORKDIR /home/jstorforumadm
 
 COPY --chown=jstorforumadm ./ .
 
-RUN chown jstorforumadm:jstorforumadm -R /home/jstorforumadm 
+RUN chown jstorforumadm:appcommon -R /home/jstorforumadm 
  #   chown jstorforumadm:jstorforumadm -R /home/jstorforumadm/logs/jstor_itest
 
-# # Update permissions for the jstorforumadm user and group
+# Update permissions for the jstorforumadm user and group
 # COPY change_id.sh /root/change_id.sh
 # RUN chmod 755 /root/change_id.sh && \
 #    /root/change_id.sh -u 55030 -g 1636
