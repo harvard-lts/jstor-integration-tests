@@ -17,15 +17,17 @@ RUN apt-get update && apt-get install -y libpq-dev gcc python-dev supervisor ngi
   pip install gunicorn && \
   pip install --upgrade --force-reinstall -r /tmp/requirements.txt -i https://pypi.org/simple/ --extra-index-url https://test.pypi.org/simple/
 
-RUN useradd --create-home jstorforumadm
+RUN groupadd -r -g 1636 jstorforumadm && \
+    useradd -u 55020 -g 1636 --create-home jstorforumadm
+
 WORKDIR /home/jstorforumadm
 
 COPY --chown=jstorforumadm ./ .
 
 # Update permissions for the jstorforumadm user and group
-COPY change_id.sh /root/change_id.sh
-RUN chmod 755 /root/change_id.sh && \
-  /root/change_id.sh -u 55030 -g 1636
+# COPY change_id.sh /root/change_id.sh
+# RUN chmod 755 /root/change_id.sh && \
+#   /root/change_id.sh -u 55030 -g 1636
 
 # Supervisor to run and manage multiple apps in the same container
 ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
