@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y libpq-dev gcc python-dev supervisor ngi
 
 
 RUN groupadd -r -g 55020 jstorforumadm && \
-   jstorforumadm -u 55020 -g 55020 --create-home jstorforumadm
+  useradd -u 55020 -g 55020 --create-home jstorforumadm
 
 # RUN useradd --create-home jstorforumadm
 WORKDIR /home/jstorforumadm
