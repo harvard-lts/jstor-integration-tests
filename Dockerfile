@@ -27,7 +27,6 @@ WORKDIR /home/jstorforumadm
 COPY --chown=jstorforumadm:appcommon ./ .
 
 RUN chown jstorforumadm:appcommon -hR /home/jstorforumadm 
- #   chown jstorforumadm:jstorforumadm -R /home/jstorforumadm/logs/jstor_itest
 
 # Update permissions for the jstorforumadm user and group
 COPY change_id.sh /root/change_id.sh
