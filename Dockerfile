@@ -24,7 +24,7 @@ RUN groupadd -r -g 55020 appcommon && \
 # RUN useradd --create-home jstorforumadm
 WORKDIR /home/jstorforumadm
 
-COPY --chown=jstorforumadm ./ .
+COPY --chown=jstorforumadm:appcommon ./ .
 
 RUN chown jstorforumadm:appcommon -R /home/jstorforumadm 
  #   chown jstorforumadm:jstorforumadm -R /home/jstorforumadm/logs/jstor_itest
