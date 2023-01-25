@@ -32,12 +32,6 @@ def define_resources(app):
     mongo_ssl_cert = os.environ.get('MONGO_SSL_CERT')
     sleep_secs = int(os.environ.get('SLEEP_SECS', 2))
 
-    #debug - dump env vars
-    current_app.logger.error("MONGO_URL: {}", mongo_url)
-    current_app.logger.error("MONGO_DBNAME: {}", mongo_dbname)
-    current_app.logger.error("MONGO_COLLECTION: {}", mongo_collection_name)
-    current_app.logger.error("SLEEP_SECS: {}", sleep_secs)
-
     # Version / Heartbeat route
     @dashboard.route('/version', endpoint="version", methods=['GET'])
     class Version(Resource):
@@ -84,8 +78,12 @@ def define_resources(app):
             result["num_failed"] += 1
             result["tests_failed"].append("Mongo")
             result["Failed Mongo"] = {"status_code": 500, "text": "Failed mongo connection"}
+            #debug - dump env vars
+            result["MONGO_URL"] = mongo_url
+            result["MONGO_DBNAME"] = mongo_dbname
+            result["MONGO_COLLECTION"] = mongo_collection_name
+            result["SLEEP_SECS"] = sleep_secs
             mongo_client.close()
-            #current_app.logger.error("Error: unable to connect to mongodb, {}", err)
             traceback.print_exc()
 
         return json.dumps(result)
