@@ -2,7 +2,7 @@ import re
 import glob
 import shutil
 import time
-import requests
+import requests, traceback
 from flask_restx import Resource, Api
 from flask import render_template, current_app
 import os, os.path, json
@@ -80,6 +80,7 @@ def define_resources(app):
             result["Failed Mongo"] = {"status_code": 500, "text": "Failed mongo connection"}
             mongo_client.close()
             current_app.logger.error("Error: unable to connect to mongodb, {}", err)
+            traceback.print_exc()
 
         return json.dumps(result)
 
