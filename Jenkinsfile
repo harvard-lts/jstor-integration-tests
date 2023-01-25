@@ -7,4 +7,4 @@
 //  registryUri = 'https://registry.lts.harvard.edu'
 
 def endpoints = [] //['integration']
-ltsBasicPipeline.call("integration", "JSTORFORUM", "jstorforum", "25003", endpoints, "lts-jstorforum-alerts")
+ltsBasicPipeline.call("jstor-integration-tests", "JSTORFORUM", "jstorforum", "25003", endpoints, "lts-jstorforum-alerts")
