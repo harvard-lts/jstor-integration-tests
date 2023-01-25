@@ -78,13 +78,7 @@ def define_resources(app):
             result["num_failed"] += 1
             result["tests_failed"].append("Mongo")
             result["Failed Mongo"] = {"status_code": 500, "text": "Failed mongo connection"}
-            #debug - dump env vars
-            result["MONGO_URL"] = mongo_url
-            result["MONGO_DBNAME"] = mongo_dbname
-            result["MONGO_COLLECTION"] = mongo_collection_name
-            result["SLEEP_SECS"] = sleep_secs
             mongo_client.close()
-            traceback.print_exc()
 
         return json.dumps(result)
 
