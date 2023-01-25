@@ -79,6 +79,7 @@ def define_resources(app):
             result["tests_failed"].append("Mongo")
             result["Failed Mongo"] = {"status_code": 500, "text": "Failed mongo connection"}
             mongo_client.close()
+            current_app.logger.error("Error: unable to connect to mongodb, {}", err)
 
         return json.dumps(result)
 
