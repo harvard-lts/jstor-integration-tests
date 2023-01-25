@@ -6,5 +6,5 @@
 //  registryCredentialsId = "${env.REGISTRY_ID}"
 //  registryUri = 'https://registry.lts.harvard.edu'
 
-def endpoints = [] //['integration']
+def endpoints = ['integration']
 ltsBasicPipeline.call("jstor-integration-tests", "JSTORFORUM", "jstorforum", "25003", endpoints, "lts-jstorforum-alerts")
