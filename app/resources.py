@@ -46,6 +46,13 @@ def define_resources(app):
     ssio_s3_region = os.environ.get('S3_SSIO_REGION')
     ssio_test_object = os.environ.get('S3_SSIO_TEST_OBJECT')
 
+    aspace_access_key = os.environ.get('S3_ASPACE_ACCESS_KEY')
+    aspace_secret_key = os.environ.get('S3_ASPACE_SECRET_KEY')
+    aspace_bucket_name = os.environ.get('S3_ASPACE_BUCKET')
+    aspace_s3_endpoint = os.environ.get('S3_ASPACE_ENDPOINT')
+    aspace_s3_region = os.environ.get('S3_ASPACE_REGION')
+    aspace_test_object = os.environ.get('S3_ASPACE_TEST_OBJECT')
+
     s3_test_prefix = os.environ.get('S3_TEST_PREFIX')
 
     # Version / Heartbeat route
@@ -122,9 +129,22 @@ def define_resources(app):
                 result["Failed SSIO bucket"] = {"status_code": 500, "text": str(err) }
                 traceback.print_exc()
 
+            aspace_boto_session = boto3.Session(aws_access_key_id=aspace_access_key, aws_secret_access_key=aspace_secret_key)
+            aspace_s3_resource = aspace_boto_session.resource('s3')
+            aspace_s3_bucket = aspace_s3_resource.Bucket(aspace_bucket_name)
+
+            try:
+                aspace_s3_bucket.Object(aspace_test_object).last_modified
+            except Exception as err:
+                result["num_failed"] += 1
+                result["tests_failed"].append("Aspace")
+                result["Failed Aspace bucket"] = {"status_code": 500, "text": str(err) }
+                traceback.print_exc()
+
             # delete contents of s3 test export folder to reset test
             via_s3_bucket.objects.filter(Prefix=s3_test_prefix).delete()
             ssio_s3_bucket.objects.filter(Prefix=s3_test_prefix).delete()
+            aspace_s3_bucket.objects.filter(Prefix="").delete()
 
         except Exception as err:
             result["num_failed"] += 1
