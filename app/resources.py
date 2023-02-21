@@ -151,6 +151,23 @@ def define_resources(app):
             result["tests_failed"].append("S3")
             result["Failed S3"] = {"status_code": 500, "text": str(err) }
 
+        try:
+            # delete contents of harvested and transformed directories
+            delete_transform_dir = os.environ.get('JSTOR_TRANSFORM_DIR') + "/" + s3_test_prefix
+            delete_transform_files = os.listdir(delete_transform_dir)
+            for transformed_file in delete_transform_files:
+                os.remove(delete_transform_dir + "/" + transformed_file)
+
+            delete_aspace_dir = os.environ.get('JSTOR_ASPACE_DIR')
+            delete_aspace_files = os.listdir(delete_aspace_dir)
+            for aspace_file in delete_aspace_files:
+                os.remove(delete_aspace_dir + "/" + aspace_file)
+
+        except Exception as err:
+            result["num_failed"] += 1
+            result["tests_failed"].append("Directory cleanup")
+            result["Failed Dir Cleanup"] = {"status_code": 500, "text": str(err) }
+
 
         return json.dumps(result)
 

@@ -12,6 +12,8 @@ services:
       dockerfile: './DockerfileLocal'
     volumes:
       - './:/home/jstorforumadm'
+      - '/tmp/harvested:/tmp/harvested'
+      - '/tmp/transformed:/tmp/transformed'
     env_file:
       - '.env'
     environment:
