@@ -55,6 +55,8 @@ def define_resources(app):
 
     s3_test_prefix = os.environ.get('S3_TEST_PREFIX')
 
+    dashboard_url = os.environ.get('DASHBOARD_URL')
+
     # Version / Heartbeat route
     @dashboard.route('/version', endpoint="version", methods=['GET'])
     class Version(Resource):
@@ -133,18 +135,20 @@ def define_resources(app):
             aspace_s3_resource = aspace_boto_session.resource('s3')
             aspace_s3_bucket = aspace_s3_resource.Bucket(aspace_bucket_name)
 
-            try:
-                aspace_s3_bucket.Object(aspace_test_object).last_modified
-            except Exception as err:
-                result["num_failed"] += 1
-                result["tests_failed"].append("Aspace")
-                result["Failed Aspace bucket"] = {"status_code": 500, "text": str(err) }
-                traceback.print_exc()
+            #todo: since aspace harvests are unpredictable, query mongo to see if it actually harvested anything.
+            # if so, then check to see if those records are in S3
+            # try:
+            #     aspace_s3_bucket.Object(aspace_test_object).last_modified
+            # except Exception as err:
+            #     result["num_failed"] += 1
+            #     result["tests_failed"].append("Aspace")
+            #     result["Failed Aspace bucket"] = {"status_code": 500, "text": str(err) }
+            #     traceback.print_exc()
 
             # delete contents of s3 test export folder to reset test
             via_s3_bucket.objects.filter(Prefix=s3_test_prefix).delete()
             ssio_s3_bucket.objects.filter(Prefix=s3_test_prefix).delete()
-            aspace_s3_bucket.objects.filter(Prefix="").delete()
+            #aspace_s3_bucket.objects.filter(Prefix="").delete()
 
         except Exception as err:
             result["num_failed"] += 1
@@ -168,6 +172,12 @@ def define_resources(app):
             result["tests_failed"].append("Directory cleanup")
             result["Failed Dir Cleanup"] = {"status_code": 500, "text": str(err) }
 
+        #check if dashboard is running
+        dashboard_response = requests.get(dashboard_url, verify=False)
+        if dashboard_response.status_code != 200:
+            result["num_failed"] += 1
+            result["tests_failed"].append("Dashboard")
+            result["Dashboard HTTP Error"] = {"status_code": dashboard_response.status_code}
 
         return json.dumps(result)
 
