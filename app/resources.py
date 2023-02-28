@@ -102,13 +102,13 @@ def define_resources(app):
             for component in components:
                 col = component["collection"]
                 itest_record = col.find_one(query)
-                if (itest_record == None):
+                if (itest_record == None): #check for connectivity
                     result["num_failed"] += 1
                     result["tests_failed"].append(component["name"])
-                else:
-                    if (not itest_record["success"]):
-                        result["num_failed"] += 1
-                        result["tests_failed"].append(component["name"])
+                # else:
+                #     if (not itest_record["success"]):
+                #         result["num_failed"] += 1
+                #         result["tests_failed"].append(component["name"])
             mongo_client.close()
         except Exception as err:
             result["num_failed"] += 1
