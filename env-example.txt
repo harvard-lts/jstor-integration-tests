@@ -11,7 +11,7 @@ SECOND_QUEUE_NAME=transform_jstorforum_itest
 THIRD_QUEUE_NAME=publish_jstorforum_itest
 LAST_QUEUE_NAME=completed_jstorforum_itest
 
-SLEEP_SECS=1
+SLEEP_SECS=90
 
 # s3 info for via bucket
 S3_VIA_ENDPOINT=
@@ -49,3 +49,12 @@ HARVEST_IGNORE_DIRS=
 TRANSFORM_IGNORE_DIRS=
 
 DASHBOARD_URL=
+
+JSTOR_HARVESTED_RECORDS=jstor_harvested_records
+JSTOR_TRANSFORMED_RECORDS=jstor_transformed_records
+JSTOR_PUBLISHED_RECORDS=jstor_published_records
+HARVEST_COLLECTION=jstor_harvests
+
+JSTOR_HARVESTED_SUMMARY=jstor_harvested_summary
+JSTOR_TRANSFORMED_SUMMARY=jstor_transformed_summary
+JSTOR_PUBLISHED_SUMMARY=jstor_transformed_summary

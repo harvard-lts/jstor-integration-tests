@@ -57,6 +57,10 @@ def define_resources(app):
 
     dashboard_url = os.environ.get('DASHBOARD_URL')
 
+    harvest_collection_name = os.environ.get('JSTOR_HARVESTED_SUMMARY', 'jstor_harvested_summary')
+    transform_collection_name = os.environ.get('JSTOR_TRANSFORMED_SUMMARY', 'jstor_transformed_summary')
+    publish_collection_name = os.environ.get('JSTOR_PUBLISHED_SUMMARY', 'jstor_published_summary')
+
     # Version / Heartbeat route
     @dashboard.route('/version', endpoint="version", methods=['GET'])
     class Version(Resource):
@@ -78,26 +82,33 @@ def define_resources(app):
         test_message = {"job_ticket_id":job_ticket_id, "integration_test": True}
         task_result = do_task(test_message)
         task_id = task_result.id
+        #dump json
+        current_app.logger.info("job ticket id: " + job_ticket_id)
 
         #read from mongodb
         try:
             mongo_client = MongoClient(mongo_url, maxPoolSize=1)
             mongo_db = mongo_client[mongo_dbname]
-            mongo_collection = mongo_db[mongo_collection_name]
+            harvest_collection = mongo_db[harvest_collection_name]
+            transform_collection = mongo_db[transform_collection_name]
+            publish_collection = mongo_db[publish_collection_name]
 
-            harvester_filter = {"id": "harvester-" + job_ticket_id, "name": "Harvester"}
-            transformer_filter = {"id": "transformer-" + job_ticket_id, "name": "Transformer"}
-            publisher_filter = {"id": "publisher-" + job_ticket_id, "name": "Publisher"}
-
-            filters = [harvester_filter, transformer_filter, publisher_filter]
             time.sleep(sleep_secs) #wait for queue 
-            for component_filter in filters:
-                query  = { "id": component_filter["id"] }
-                itest_record = mongo_collection.find_one(query)
+
+            components = [{"name": "Harvester",  "collection": harvest_collection}, 
+                {"name": "Transformer", "collection": transform_collection}, 
+                {"name": "Publisher", "collection": publish_collection}]
+            query = {"id": job_ticket_id}
+            for component in components:
+                col = component["collection"]
+                itest_record = col.find_one(query)
                 if (itest_record == None):
                     result["num_failed"] += 1
-                    result["tests_failed"].append(component_filter["name"])
-
+                    result["tests_failed"].append(component["name"])
+                else:
+                    if (not itest_record["success"]):
+                        result["num_failed"] += 1
+                        result["tests_failed"].append(component["name"])
             mongo_client.close()
         except Exception as err:
             result["num_failed"] += 1
@@ -173,11 +184,16 @@ def define_resources(app):
             result["Failed Dir Cleanup"] = {"status_code": 500, "text": str(err) }
 
         #check if dashboard is running
-        dashboard_response = requests.get(dashboard_url, verify=False)
-        if dashboard_response.status_code != 200:
+        try:
+            dashboard_response = requests.get(dashboard_url, verify=False)
+            if dashboard_response.status_code != 200:
+                result["num_failed"] += 1
+                result["tests_failed"].append("Dashboard")
+                result["Dashboard HTTP Error"] = {"status_code": dashboard_response.status_code}
+        except Exception as err:
             result["num_failed"] += 1
             result["tests_failed"].append("Dashboard")
-            result["Dashboard HTTP Error"] = {"status_code": dashboard_response.status_code}
+            result["Dashboard HTTP Error"] = {"status_code": 500, "text": str(err) }
 
         return json.dumps(result)
 
