@@ -102,7 +102,7 @@ def define_resources(app):
             for component in components:
                 col = component["collection"]
                 itest_record = col.find_one(query)
-                shortname = itest_record["shortname"]
+                shortname = itest_record["repo_short_name"]
                 status = itest_record["status"]
                 if (itest_record == None): #check for connectivity
                     result["num_failed"] += 1
