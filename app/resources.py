@@ -57,9 +57,13 @@ def define_resources(app):
 
     dashboard_url = os.environ.get('DASHBOARD_URL')
 
-    harvest_collection_name = os.environ.get('JSTOR_HARVESTED_RECORDS', 'jstor_harvested_records')
-    transform_collection_name = os.environ.get('JSTOR_TRANSFORMED_RECORDS', 'jstor_transformed_records')
-    publish_collection_name = os.environ.get('JSTOR_PUBLISHED_RECORDS', 'jstor_published_records')
+    harvest_records_collection_name = os.environ.get('JSTOR_HARVESTED_RECORDS', 'jstor_harvested_records')
+    transform_records_collection_name = os.environ.get('JSTOR_TRANSFORMED_RECORDS', 'jstor_transformed_records')
+    publish_records_collection_name = os.environ.get('JSTOR_PUBLISHED_RECORDS', 'jstor_published_records')
+
+    harvest_summary_collection_name = os.environ.get('JSTOR_HARVESTED_SUMMARY', 'jstor_harvested_summary')
+    transform_summary_collection_name = os.environ.get('JSTOR_TRANSFORMED_SUMMARY', 'jstor_transformed_summary')
+    publish_summary_collection_name = os.environ.get('JSTOR_PUBLISHED_SUMMARY', 'jstor_published_summary')
 
     # Version / Heartbeat route
     @dashboard.route('/version', endpoint="version", methods=['GET'])
@@ -89,15 +93,20 @@ def define_resources(app):
         try:
             mongo_client = MongoClient(mongo_url, maxPoolSize=1)
             mongo_db = mongo_client[mongo_dbname]
-            harvest_collection = mongo_db[harvest_collection_name]
-            transform_collection = mongo_db[transform_collection_name]
-            publish_collection = mongo_db[publish_collection_name]
+            
+            harvest_records_collection = mongo_db[harvest_records_collection_name]
+            transform_records_collection = mongo_db[transform_records_collection_name]
+            publish_records_collection = mongo_db[publish_records_collection_name]
+
+            harvest_summary_collection = mongo_db[harvest_summary_collection_name]
+            transform_summary_collection = mongo_db[transform_summary_collection_name]
+            publish_summary_collection = mongo_db[publish_summary_collection_name]
 
             time.sleep(sleep_secs) #wait for queue 
 
-            components = [{"name": "Harvester",  "collection": harvest_collection}, 
-                {"name": "Transformer", "collection": transform_collection}, 
-                {"name": "Publisher", "collection": publish_collection}]
+            components = [{"name": "Harvester",  "collection": harvest_records_collection}, 
+                {"name": "Transformer", "collection": transform_records_collection}, 
+                {"name": "Publisher", "collection": publish_records_collection}]
             query = {"id": job_ticket_id, "status": "add_update"}
             for component in components:
                 col = component["collection"]
