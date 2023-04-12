@@ -57,9 +57,9 @@ def define_resources(app):
 
     dashboard_url = os.environ.get('DASHBOARD_URL')
 
-    harvest_collection_name = os.environ.get('JSTOR_HARVESTED_SUMMARY', 'jstor_harvested_summary')
-    transform_collection_name = os.environ.get('JSTOR_TRANSFORMED_SUMMARY', 'jstor_transformed_summary')
-    publish_collection_name = os.environ.get('JSTOR_PUBLISHED_SUMMARY', 'jstor_published_summary')
+    harvest_collection_name = os.environ.get('JSTOR_HARVESTED_RECORDS', 'jstor_harvested_records')
+    transform_collection_name = os.environ.get('JSTOR_TRANSFORMED_RECORDS', 'jstor_transformed_records')
+    publish_collection_name = os.environ.get('JSTOR_PUBLISHED_RECORDS', 'jstor_published_records')
 
     # Version / Heartbeat route
     @dashboard.route('/version', endpoint="version", methods=['GET'])
