@@ -98,11 +98,12 @@ def define_resources(app):
             components = [{"name": "Harvester",  "collection": harvest_collection}, 
                 {"name": "Transformer", "collection": transform_collection}, 
                 {"name": "Publisher", "collection": publish_collection}]
-            query = {"id": job_ticket_id}
+            query = {"id": job_ticket_id, "status": "add_update"}
             for component in components:
                 col = component["collection"]
                 itest_record = col.find_one(query)
                 shortname = itest_record["shortname"]
+                status = itest_record["status"]
                 if (itest_record == None): #check for connectivity
                     result["num_failed"] += 1
                     result["tests_failed"].append(component["name"])
