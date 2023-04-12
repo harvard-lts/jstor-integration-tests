@@ -107,7 +107,7 @@ def define_resources(app):
             components = [{"name": "Harvester",  "collection": harvest_records_collection}, 
                 {"name": "Transformer", "collection": transform_records_collection}, 
                 {"name": "Publisher", "collection": publish_records_collection}]
-            query = {"id": job_ticket_id, "status": "add_update"}
+            query = {"harvest_id": job_ticket_id, "status": "add_update"}
             for component in components:
                 col = component["collection"]
                 itest_record = col.find_one(query)
