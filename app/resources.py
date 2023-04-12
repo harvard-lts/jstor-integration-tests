@@ -102,13 +102,14 @@ def define_resources(app):
             for component in components:
                 col = component["collection"]
                 itest_record = col.find_one(query)
+                shortname = itest_record["shortname"]
                 if (itest_record == None): #check for connectivity
                     result["num_failed"] += 1
                     result["tests_failed"].append(component["name"])
-                # else:
-                #     if (not itest_record["success"]):
-                #         result["num_failed"] += 1
-                #         result["tests_failed"].append(component["name"])
+                if (shortname == None): #check for repository shortname
+                    result["num_failed"] += 1
+                    result["tests_failed"].append(component["name"])
+                    result["missing_shortname"] = {"text": "repository_shortname not found in record"}
             mongo_client.close()
         except Exception as err:
             result["num_failed"] += 1
