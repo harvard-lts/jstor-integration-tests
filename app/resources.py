@@ -107,7 +107,7 @@ def define_resources(app):
             components = [{"name": "Harvester",  "collection": harvest_records_collection}, 
                 {"name": "Transformer", "collection": transform_records_collection}, 
                 {"name": "Publisher", "collection": publish_records_collection}]
-            query = {"harvest_id": job_ticket_id, "status": "add_update"}
+            query = {"harvest_id": job_ticket_id}
             for component in components:
                 col = component["collection"]
                 itest_record = col.find_one(query)
@@ -120,6 +120,10 @@ def define_resources(app):
                     result["num_failed"] += 1
                     result["tests_failed"].append(component["name"])
                     result["missing_shortname"] = {"text": "repository_shortname not found in record"}
+                if ((status != "harvested") or (status != "add_update")):#  "status": "add_update" or "harvested"
+                    result["num_failed"] += 1
+                    result["tests_failed"].append(component["name"])
+                    result["missing_status"] = {"text": "incorrect status in record"}
             mongo_client.close()
         except Exception as err:
             result["num_failed"] += 1
