@@ -120,7 +120,7 @@ def define_resources(app):
                     result["num_failed"] += 1
                     result["tests_failed"].append(component["name"])
                     result["missing_shortname"] = {"text": "repository_shortname not found in record"}
-                if ((status != "harvested") or (status != "add_update")):#  "status": "add_update" or "harvested"
+                if ((status != "harvested") and (status != "add_update")): #  "status": "add_update" or "harvested"
                     result["num_failed"] += 1
                     result["tests_failed"].append(component["name"])
                     result["missing_status"] = {"text": "incorrect status in record"}
