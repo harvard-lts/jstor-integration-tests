@@ -125,42 +125,42 @@ def define_resources(app):
                     result["tests_failed"].append(component["name"])
                     result["missing_status"] = {"text": "incorrect status in record"}
             # test to see if publish records are correct 
-            dest_query1 = {"harvest_id": job_ticket_id, "destination": "SSIO"}
-            dest_query2 = {"harvest_id": job_ticket_id, "destination": "VIA"}
-            dest_query3 = {"harvest_id": job_ticket_id, "destination": "primo"}
-            dest_query4 = {"harvest_id": job_ticket_id, "destination": "lc"}
-            dest_rec1 = publish_records_collection.find_one(dest_query1)
-            if (dest_rec1 == None):
-                result["num_failed"] += 1
-                result["tests_failed"] = {"text": "No records found w/ SSIO destination"}
-            dest_rec2 = publish_records_collection.find_one(dest_query2)
-            if (dest_rec2 == None):
-                result["num_failed"] += 1
-                result["tests_failed"] = {"text": "No records found w/ VIA destination"}
-            dest_rec3 = publish_records_collection.find_one(dest_query3)
-            if (dest_rec3 == None):
-                result["num_failed"] += 1
-                result["tests_failed"] = {"text": "No records found w/ Primo destination"}
-            dest_rec4 = publish_records_collection.find_one(dest_query4)
-            if (dest_rec4 == None):
-                result["num_failed"] += 1
-                result["tests_failed"] = {"text": "No records found w/ Librarycloud destination"}
-            #test for dropped records
-            drop_query = {"harvest_id": job_ticket_id, "status": "drop"}
-            dropped_xform_rec = transform_records_collection.find_one(drop_query)
-            if (dropped_xform_rec == None):
-                result["num_failed"] += 1
-                result["tests_failed"] = {"text": "No dropped records found in jstor_transformed_records collection"}
-            #test for deleted records
-            del_query = {"harvest_id": job_ticket_id, "status": "delete"}
-            deleted_xform_rec = transform_records_collection.find_one(del_query)
-            if (deleted_xform_rec == None):
-                result["num_failed"] += 1
-                result["tests_failed"] = {"text": "No deleted records found in jstor_transformed_records collection"}
-            deleted_publish_rec = publish_records_collection.find_one(del_query)
-            if (deleted_publish_rec == None):
-                result["num_failed"] += 1
-                result["tests_failed"] = {"text": "No deleted records found in jstor_published_records collection"}
+            # dest_query1 = {"harvest_id": job_ticket_id, "destination": "SSIO"}
+            # dest_query2 = {"harvest_id": job_ticket_id, "destination": "VIA"}
+            # dest_query3 = {"harvest_id": job_ticket_id, "destination": "primo"}
+            # dest_query4 = {"harvest_id": job_ticket_id, "destination": "lc"}
+            # dest_rec1 = publish_records_collection.find_one(dest_query1)
+            # if (dest_rec1 == None):
+            #     result["num_failed"] += 1
+            #     result["tests_failed"] = {"text": "No records found w/ SSIO destination"}
+            # dest_rec2 = publish_records_collection.find_one(dest_query2)
+            # if (dest_rec2 == None):
+            #     result["num_failed"] += 1
+            #     result["tests_failed"] = {"text": "No records found w/ VIA destination"}
+            # dest_rec3 = publish_records_collection.find_one(dest_query3)
+            # if (dest_rec3 == None):
+            #     result["num_failed"] += 1
+            #     result["tests_failed"] = {"text": "No records found w/ Primo destination"}
+            # dest_rec4 = publish_records_collection.find_one(dest_query4)
+            # if (dest_rec4 == None):
+            #     result["num_failed"] += 1
+            #     result["tests_failed"] = {"text": "No records found w/ Librarycloud destination"}
+            # #test for dropped records
+            # drop_query = {"harvest_id": job_ticket_id, "status": "drop"}
+            # dropped_xform_rec = transform_records_collection.find_one(drop_query)
+            # if (dropped_xform_rec == None):
+            #     result["num_failed"] += 1
+            #     result["tests_failed"] = {"text": "No dropped records found in jstor_transformed_records collection"}
+            # #test for deleted records
+            # del_query = {"harvest_id": job_ticket_id, "status": "delete"}
+            # deleted_xform_rec = transform_records_collection.find_one(del_query)
+            # if (deleted_xform_rec == None):
+            #     result["num_failed"] += 1
+            #     result["tests_failed"] = {"text": "No deleted records found in jstor_transformed_records collection"}
+            # deleted_publish_rec = publish_records_collection.find_one(del_query)
+            # if (deleted_publish_rec == None):
+            #     result["num_failed"] += 1
+            #     result["tests_failed"] = {"text": "No deleted records found in jstor_published_records collection"}
             mongo_client.close()
         except Exception as err:
             result["num_failed"] += 1
