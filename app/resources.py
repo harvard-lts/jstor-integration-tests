@@ -145,6 +145,22 @@ def define_resources(app):
             if (dest_rec4 == None):
                 result["num_failed"] += 1
                 result["tests_failed"] = {"text": "No records found w/ Librarycloud destination"}
+            #test for dropped records
+            drop_query = {"harvest_id": job_ticket_id, "status": "drop"}
+            dropped_xform_rec = transform_records_collection.find_one(drop_query)
+            if (dropped_xform_rec == None):
+                result["num_failed"] += 1
+                result["tests_failed"] = {"text": "No dropped records found in jstor_transformed_records collection"}
+            #test for deleted records
+            del_query = {"harvest_id": job_ticket_id, "status": "delete"}
+            deleted_xform_rec = transform_records_collection.find_one(del_query)
+            if (deleted_xform_rec == None):
+                result["num_failed"] += 1
+                result["tests_failed"] = {"text": "No deleted records found in jstor_transformed_records collection"}
+            deleted_publish_rec = publish_records_collection.find_one(del_query)
+            if (deleted_publish_rec == None):
+                result["num_failed"] += 1
+                result["tests_failed"] = {"text": "No deleted records found in jstor_published_records collection"}
             mongo_client.close()
         except Exception as err:
             result["num_failed"] += 1
