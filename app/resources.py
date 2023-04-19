@@ -163,7 +163,7 @@ def define_resources(app):
                 result["tests_failed"] = {"text": "No deleted records found in jstor_published_records collection"}
             #test to see that there are no dupe entries in jstor_published summary
             check_pub_query = {"id": job_ticket_id, "total_published_count": "jstorforum"}
-            pub_summary_recs = len(publish_summary_collection.find(check_pub_query))
+            pub_summary_recs = publish_summary_collection.count_documents(check_pub_query)
             if (pub_summary_recs > 1 ):
                 result["num_failed"] += 1
                 result["tests_failed"] = {"text": "Duplicate records found in jstor_published_summary collection"}
